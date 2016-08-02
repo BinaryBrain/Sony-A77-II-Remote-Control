@@ -1,5 +1,7 @@
 var ws = new WebSocket(document.location.origin.replace(/^http/, "ws") + "/ws")
 
+// ws.binaryType = "arraybuffer"
+
 ws._send = ws.send;
 ws.send = function (obj) {
 	ws._send(JSON.stringify(obj));
@@ -11,6 +13,13 @@ ws.onopen = function (event) {
 }
 
 ws.onmessage = function (event) {
+	// Liveview data
+	if (event.data instanceof Blob) {
+		var img = document.querySelector('#liveview')
+		img.src = URL.createObjectURL(event.data)
+		return
+	}
+
 	console.log("WS RES:", event.data)
 
 	var data = JSON.parse(event.data)
@@ -21,8 +30,10 @@ ws.onmessage = function (event) {
 
 	if (data.res.result) {
 		console.log(data.res.result)
-		if (data.req.action === 'actTakePicture') {
-			setPicture(data.res.result[[0]])
+		switch (data.req.action) {
+			case 'actTakePicture':
+				setPicture(data.res.result[[0]])
+				break
 		}
 	}
 }

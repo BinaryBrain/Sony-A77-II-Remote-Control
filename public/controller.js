@@ -14,6 +14,11 @@ function onPageLoad() {
 		event.preventDefault()
 		ws.send({ action: 'focus' })
 	})
+
+	document.querySelector('#startLiveview').addEventListener('click', function(event) {
+		event.preventDefault()
+		ws.send({ action: 'startLiveview' })
+	})
 }
 
 function enableButtons() {
