@@ -60,7 +60,7 @@ app.ws('/ws', function(ws, req) {
 					break
 				case 'timelapse':
 					timelapse(msg.params.n, msg.params.interval, msg.params.fps, function (output) {
-						ws.send(JSON.stringify({ req: msg, res: { url: output } }))
+						ws.send(JSON.stringify({ req: msg, res: { result: output } }))
 					})
 					break
 				default:
@@ -255,6 +255,7 @@ function decode(c) {
 
 function timelapse(n, interval, fps, cb) {
 	var maxN = n
+	interval *= 1000
 
 	function _timelapse(n) {
 		// Take picture
@@ -280,6 +281,9 @@ function timelapse(n, interval, fps, cb) {
 							if (cb) {
 								cb("timelapse/output.mp4")
 							}
+
+							// rm *.jpg public/timelapse
+							var ffmpeg = spawn('rm', ['*.jpg', 'public/timelapse']);
 						})
 					}
 				})
@@ -319,7 +323,7 @@ function download(url, dest, cb) {
 
 function createTimelapse(files, fps, output, cb) {
 	// ffmpeg -framerate 0.5 -i file%01d.jpg -c:v libx264 -r 30 output.mp4
-	ffmpeg = spawn('ffmpeg', ['-y', '-framerate', fps, '-i', files, '-c:v', 'libx264', '-r', 30, output]);
+	var ffmpeg = spawn('ffmpeg', ['-y', '-framerate', fps, '-i', files, '-c:v', 'libx264', '-r', 30, output]);
 
 	ffmpeg.stdout.on('data', (data) => {
 		console.log(`stdout: ${data}`);

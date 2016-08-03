@@ -2,25 +2,24 @@ window.onload = function () {
 	onPageLoad()
 }
 
-var SHOOT_MODE = "movie"
 var IS_REC = false
 
 function onPageLoad() {
 	disableButtons()
 
-	document.querySelector('#shootModeMovie').addEventListener('click', function(event) {
-		event.preventDefault()
-		ws.send({ action: 'setShootMode', params: ['movie'] })
-	})
-
-	document.querySelector('#shootModeStill').addEventListener('click', function(event) {
-		event.preventDefault()
-		ws.send({ action: 'setShootMode', params: ['still'] })
-	})
+	var links = document.querySelectorAll('.link')
+	;[].forEach.call(links, function (link) {
+		link.addEventListener('click', function(event) {
+			event.preventDefault()
+			var mode = link.dataset.mode
+			setMode(mode)
+		});
+	});
 
 	document.querySelector('#actTakePicture').addEventListener('click', function(event) {
 		event.preventDefault()
 		ws.send({ action: 'actTakePicture' })
+		setTimeout(enableTakePicture, 7000)
 	})
 
 	document.querySelector('#focus').addEventListener('click', function(event) {
@@ -42,14 +41,28 @@ function onPageLoad() {
 		event.preventDefault()
 		ws.send({ action: 'startLiveview' })
 	})
+
+	document.querySelector('#startTimelapse').addEventListener('click', function(event) {
+		event.preventDefault()
+
+		var n = timelapseNumber.value
+		var interval = timelapseInterval.value
+		var fps = timelapseFps.value
+
+		ws.send({ action: 'timelapse', params: { n: n, interval: interval, fps: fps } })
+	})
 }
 
 function enableButtons() {
-	var buttons = document.querySelectorAll('button')
+	var buttons = document.querySelectorAll('button:not(#actTakePicture)')
 
 	;[].forEach.call(buttons, function(button) {
 		button.disabled = false
 	})
+}
+
+function enableTakePicture() {
+	document.querySelector('#actTakePicture').disabled = false
 }
 
 function disableButtons() {
@@ -69,35 +82,31 @@ function setMovie(url) {
 	document.querySelector('#lastTimelapse').src = url
 }
 
-function toogleShootModeStill() {
-	stopRec()
+function setView(mode) {
+	var views = document.querySelectorAll('.view')
 
-	document.querySelector('#shootModeMovie').style.display = 'inline'
-	document.querySelector('#shootModeStill').style.display = 'none'
+	;[].forEach.call(views, function (view) {
+		view.style.display = 'none'
+	})
 
-	document.querySelector('#actTakePicture').style.display = 'inline'
-	document.querySelector('#focus').style.display = 'inline'
-	document.querySelector('#startMovieRec').style.display = 'none'
-	document.querySelector('#stopMovieRec').style.display = 'none'
-	document.querySelector('#lastPicture').style.display = 'inline'
+	document.querySelector('#view-' + mode).style.display = 'block'
+
+	var links = document.querySelectorAll('.link')
+
+	;[].forEach.call(links, function (link) {
+		link.classList.remove('active')
+	})
+
+	document.querySelector('#link-' + mode).classList.add('active')
 }
 
-function toogleShootModeMovie() {
-	document.querySelector('#shootModeMovie').style.display = 'none'
-	document.querySelector('#shootModeStill').style.display = 'inline'
+function setMode(mode) {
+	setView(mode)
 
-	document.querySelector('#actTakePicture').style.display = 'none'
-	document.querySelector('#focus').style.display = 'none'
-	document.querySelector('#startMovieRec').style.display = 'inline'
-	document.querySelector('#stopMovieRec').style.display = 'none'
-	document.querySelector('#lastPicture').style.display = 'none'
-}
-
-function updateShootMode() {
-	if (SHOOT_MODE === 'movie') {
-		toogleShootModeMovie()
+	if (mode === 'movie') {
+		ws.send({ action: 'setShootMode', params: ['movie'] })
 	} else {
-		toogleShootModeStill()
+		ws.send({ action: 'setShootMode', params: ['still'] })
 	}
 }
 

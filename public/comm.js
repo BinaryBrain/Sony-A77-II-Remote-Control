@@ -2,7 +2,7 @@ var ws = new WebSocket(document.location.origin.replace(/^http/, "ws") + "/ws")
 
 ws._send = ws.send;
 ws.send = function (data) {
-	if (data.action && data.action != 'startLiveview') {
+	if (data.action && data.action != 'startLiveview' && data.action != 'getShootMode') {
 		disableButtons()
 	}
 
@@ -13,6 +13,7 @@ ws.onopen = function (event) {
 	console.log("WebSocket open")
 	ws.send({ action: "getShootMode" })
 	enableButtons()
+	enableTakePicture()
 }
 
 ws.onmessage = function (event) {
@@ -33,20 +34,25 @@ ws.onmessage = function (event) {
 
 	if (data.res.result) {
 		console.log(data.res.result)
+		if (data.req.action !== 'actTakePicture') {
+			enableTakePicture()
+		}
+
 		switch (data.req.action) {
 			case 'actTakePicture':
 				setPicture(data.res.result[0][0])
 				break
 			case 'timelapse':
-				setMovie(data.res.url)
+				setMovie(data.res.result)
 				break
 			case 'getShootMode':
-				SHOOT_MODE = data.res.result[0]
-				updateShootMode()
+				if (data.res.result[0] === 'movie') {
+					setView('movie')
+				} else {
+					setView('picture')
+				}
 				break
 			case 'setShootMode':
-				SHOOT_MODE = data.req.params[0]
-				updateShootMode()
 				break
 			case 'startMovieRec':
 				startRec()

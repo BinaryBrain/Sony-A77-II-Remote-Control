@@ -11,17 +11,49 @@
 	</head>
 	<body>
 		<div id="container">
-			<h1>Sony α77 II Remote Control</h1>
-			<button id="actTakePicture">Take picture</button>
-			<button id="startMovieRec">Record</button>
-			<button id="stopMovieRec">Stop</button>
-			<button id="focus">Focus</button>
-			<button id="startLiveview">Start Liveview</button>
-			<button id="shootModeMovie">Movie Mode</button>
-			<button id="shootModeStill">Still Mode</button>
-			<img id="liveview">
-			<a id="lastPictureLink" href="#" target="_blank"><img id="lastPicture"></a>
-			<video id="lastTimelapse" controls autoplay></video>
+			<h1><span>Sony α77 II Remote Control</span></h1>
+
+			<div id="view-picture" class="view">
+				<h2>Picture Mode</h2>
+				<div class="actions">
+					<button id="actTakePicture">Take picture</button>
+					<button id="focus">Focus</button>
+					<button id="startLiveview">Start Liveview</button>
+				</div>
+
+				<div class="preview">
+					<a id="lastPictureLink" href="#" target="_blank"><img id="lastPicture"></a>
+				</div>
+			</div>
+			<div id="view-movie" class="view">
+				<h2>Movie Mode</h2>
+				<div class="actions">
+					<button id="startMovieRec">Record</button>
+					<button id="stopMovieRec">Stop</button>
+					<button id="startLiveview">Start Liveview</button>
+				</div>
+			</div>
+			<div id="view-timelapse" class="view">
+				<h2>Timelapse Mode</h2>
+				<div class="actions">
+					<button id="focus">Focus</button>
+					<button id="startLiveview">Start Liveview</button><br>
+					<input id="timelapseNumber" type="number" value="5" min="1"> pictures<br>
+					<input id="timelapseInterval" type="number" value="10" min="7"> seconds<br>
+					<input id="timelapseFps" type="number" value="1" min="0" max="30" step="0.1"> frame/s<br>
+					<button id="startTimelapse">Start Timelapse</button>
+				</div>
+
+				<div class="preview">
+					<video id="lastTimelapse" controls autoplay loop></video>
+				</div>
+			</div>
+			<div id="liveviewContainer"><img id="liveview"></div>
 		</div>
+		<nav>
+			<div class="link" id="link-picture" data-mode="picture">Picture Mode</div>
+			<div class="link" id="link-movie" data-mode="movie">Movie Mode</div>
+			<div class="link" id="link-timelapse" data-mode="timelapse">Timelapse Mode</div>
+		</nav>
 	</body>
 </html>
