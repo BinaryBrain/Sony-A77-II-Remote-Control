@@ -3,8 +3,12 @@ var ws = new WebSocket(document.location.origin.replace(/^http/, "ws") + "/ws")
 // ws.binaryType = "arraybuffer"
 
 ws._send = ws.send;
-ws.send = function (obj) {
-	ws._send(JSON.stringify(obj));
+ws.send = function (data) {
+	if (data.action && data.action != 'startLiveview') {
+		disableButtons()
+	}
+
+	ws._send(JSON.stringify(data))
 }
 
 ws.onopen = function (event) {
@@ -21,7 +25,7 @@ ws.onmessage = function (event) {
 	}
 
 	console.log("WS RES:", event.data)
-
+	enableButtons()
 	var data = JSON.parse(event.data)
 
 	if (data.res.error) {

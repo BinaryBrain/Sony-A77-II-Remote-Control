@@ -38,7 +38,7 @@ app.ws('/ws', function(ws, req) {
 						} else {
 							setTimeout(function () {
 								sendAction("setShootMode", ["still"], cb)
-							}, 3000)
+							}, 2000)
 						}
 					})
 					break
@@ -63,6 +63,8 @@ app.listen(3000, function () {
 
 
 function sendAction(action, params, cb) {
+	params = params || []
+
 	var postData = JSON.stringify({
 		"method": action,
 		"params": params,
@@ -120,9 +122,7 @@ function startLiveview(url, ws) {
 
 	var liveviewReq = http.request(url, function (liveviewRes) {
 		liveviewRes.on('data', function (chunk) {
-			decode(chunk, ws)
-
-			// ws.send(chunk);
+			decode(chunk)
 		})
 
 		liveviewRes.on('end', function () {
@@ -147,7 +147,7 @@ var jpegDataLeft = 0
 var paddingSize = 0
 var frame = new Buffer(0)
 
-function decode(c, ws) {
+function decode(c) {
 	var debug = false
 
 	if (isNewPacket) {
@@ -215,7 +215,17 @@ function decode(c, ws) {
 		if (jpegDataLeft == 0) {
 			if (debug) console.log('End of image', frame.length)
 			isNewPacket = true
-			ws.send(frame)
+
+			var clients = expressWs.getWss('/ws').clients
+			if (clients.length == 0) {
+				sendAction('stopLiveview')
+			}
+
+			clients.forEach(function (ws) {
+				ws.send(frame)
+			})
+
+
 			// fs.writeFile("frame-" + frameNo, frame, 0, frame.length)
 		}
 	}
