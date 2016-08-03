@@ -1,7 +1,5 @@
 var ws = new WebSocket(document.location.origin.replace(/^http/, "ws") + "/ws")
 
-// ws.binaryType = "arraybuffer"
-
 ws._send = ws.send;
 ws.send = function (data) {
 	if (data.action && data.action != 'startLiveview') {
@@ -37,7 +35,10 @@ ws.onmessage = function (event) {
 		console.log(data.res.result)
 		switch (data.req.action) {
 			case 'actTakePicture':
-				setPicture(data.res.result[[0]])
+				setPicture(data.res.result[0][0])
+				break
+			case 'timelapse':
+				setMovie(data.res.url)
 				break
 			case 'getShootMode':
 				SHOOT_MODE = data.res.result[0]

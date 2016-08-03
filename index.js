@@ -1,4 +1,5 @@
 var CAMERA_IP_ADDR = "192.168.122.1"
+var actionId = 1
 
 var express = require('express')
 var app = express()
@@ -6,6 +7,7 @@ var expressWs = require('express-ws')(app)
 var querystring = require('querystring')
 var http = require('http')
 var fs = require('fs')
+var spawn = require('child_process').spawn
 
 app.use(express.static('public'))
 
@@ -56,8 +58,13 @@ app.ws('/ws', function(ws, req) {
 						}
 					})
 					break
+				case 'timelapse':
+					timelapse(msg.params.n, msg.params.interval, msg.params.fps, function (output) {
+						ws.send(JSON.stringify({ req: msg, res: { url: output } }))
+					})
+					break
 				default:
-					ws.send('Unknown action:' + msg)
+					ws.send('Unknown action:' + msg.action)
 					break
 			}
 		} catch (err) {
@@ -78,11 +85,12 @@ app.listen(3000, function () {
 
 function sendAction(action, params, cb) {
 	params = params || []
+	actionId++
 
 	var postData = JSON.stringify({
 		"method": action,
 		"params": params,
-		"id": 1, // TODO random
+		"id": actionId,
 		"version": "1.0"
 	})
 
@@ -99,7 +107,7 @@ function sendAction(action, params, cb) {
 
 	var req = http.request(options, function(res) {
 		res.setEncoding('utf8')
-		
+
 		console.log('STATUS: ' + res.statusCode)
 		console.log('HEADERS: ' + JSON.stringify(res.headers))
 		
@@ -244,3 +252,91 @@ function decode(c) {
 		}
 	}
 }
+
+function timelapse(n, interval, fps, cb) {
+	var maxN = n
+
+	function _timelapse(n) {
+		// Take picture
+		sendAction("actTakePicture", [], function (data) {
+			var data = JSON.parse(data)
+
+			if (data.error) {
+				console.error(data.error)
+			}
+
+			if (data.result) {
+				var url = data.result[0][0]
+
+				function pad(str, max) {
+					str = str + ""
+					return str.length < max ? pad("0" + str, max) : str;
+				}
+
+				var filename = "public/timelapse/file" + pad(maxN - n, 4) + '.jpg'
+				download(url, filename, function () {
+					if (n == 1) {
+						createTimelapse("public/timelapse/file%04d.jpg", fps, "public/timelapse/output.mp4", function () {
+							if (cb) {
+								cb("timelapse/output.mp4")
+							}
+						})
+					}
+				})
+			}
+		})
+
+		if (n == 1) {
+			return
+		}
+
+		setTimeout(function () {
+			_timelapse(n-1)
+		}, interval)
+	}
+
+	_timelapse(n)
+}
+
+function download(url, dest, cb) {
+	var options = {
+		hostname: CAMERA_IP_ADDR,
+		port: 60152,
+		method: 'GET'
+	}
+
+	var file = fs.createWriteStream(dest)
+	var request = http.get(url, function(response) {
+		response.pipe(file)
+		file.on('finish', function() {
+			file.close(cb)
+		})
+	}).on('error', function(err) {
+		fs.unlink(dest)
+		console.error(err)
+	})
+}
+
+function createTimelapse(files, fps, output, cb) {
+	// ffmpeg -framerate 0.5 -i file%01d.jpg -c:v libx264 -r 30 output.mp4
+	ffmpeg = spawn('ffmpeg', ['-y', '-framerate', fps, '-i', files, '-c:v', 'libx264', '-r', 30, output]);
+
+	ffmpeg.stdout.on('data', (data) => {
+		console.log(`stdout: ${data}`);
+	});
+
+	ffmpeg.stderr.on('data', (data) => {
+		console.log(`stderr: ${data}`);
+	});
+
+	ffmpeg.on('close', (code) => {
+		console.log(`child process exited with code ${code}`);
+		if (cb) {
+			cb()
+		}
+	});
+}
+
+process.on('uncaughtException', function (err) {
+	console.error(err);
+});

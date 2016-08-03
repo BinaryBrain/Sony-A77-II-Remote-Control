@@ -65,6 +65,10 @@ function setPicture(url) {
 	document.querySelector('#lastPictureLink').href = url
 }
 
+function setMovie(url) {
+	document.querySelector('#lastTimelapse').src = url
+}
+
 function toogleShootModeStill() {
 	stopRec()
 
