@@ -2,6 +2,7 @@ Sony α77 II Remote Control
 ==========================
 
 The purpose of this project is to have a nice remote controller for the Sony α77 II running on a computer.
+However, it should work with most Sony cameras since it only uses basic API calls.
 
 The server is in Node.js and the client is a web page.
 
@@ -29,4 +30,3 @@ On your computer:
 1. Connect to the Wi-Fi hotspot created by the camera
 2. Check that the IP address of your "router" (which is in fact the camera) is `192.168.122.1`.
 If it's not, you have to change the IP address in the [server file](index.js#L1).
-

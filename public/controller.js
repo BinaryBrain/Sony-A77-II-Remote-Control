@@ -62,6 +62,7 @@ function disableButtons() {
 
 function setPicture(url) {
 	document.querySelector('#lastPicture').src = url
+	document.querySelector('#lastPictureLink').href = url
 }
 
 function toogleShootModeStill() {
@@ -74,6 +75,7 @@ function toogleShootModeStill() {
 	document.querySelector('#focus').style.display = 'inline'
 	document.querySelector('#startMovieRec').style.display = 'none'
 	document.querySelector('#stopMovieRec').style.display = 'none'
+	document.querySelector('#lastPicture').style.display = 'inline'
 }
 
 function toogleShootModeMovie() {
@@ -84,6 +86,7 @@ function toogleShootModeMovie() {
 	document.querySelector('#focus').style.display = 'none'
 	document.querySelector('#startMovieRec').style.display = 'inline'
 	document.querySelector('#stopMovieRec').style.display = 'none'
+	document.querySelector('#lastPicture').style.display = 'none'
 }
 
 function updateShootMode() {
