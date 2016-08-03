@@ -1,3 +1,5 @@
+var CAMERA_IP_ADDR = "192.168.122.1"
+
 var express = require('express')
 var app = express()
 var expressWs = require('express-ws')(app)
@@ -85,7 +87,7 @@ function sendAction(action, params, cb) {
 	})
 
 	var options = {
-		hostname: '192.168.122.1',
+		hostname: CAMERA_IP_ADDR,
 		port: 10000,
 		path: '/sony/camera',
 		method: 'POST',
