@@ -13,6 +13,7 @@ ws.send = function (data) {
 
 ws.onopen = function (event) {
 	console.log("WebSocket open")
+	ws.send({ action: "getShootMode" })
 	enableButtons()
 }
 
@@ -37,6 +38,20 @@ ws.onmessage = function (event) {
 		switch (data.req.action) {
 			case 'actTakePicture':
 				setPicture(data.res.result[[0]])
+				break
+			case 'getShootMode':
+				SHOOT_MODE = data.res.result[0]
+				updateShootMode()
+				break
+			case 'setShootMode':
+				SHOOT_MODE = data.req.params[0]
+				updateShootMode()
+				break
+			case 'startMovieRec':
+				startRec()
+				break
+			case 'stopMovieRec':
+				stopRec()
 				break
 		}
 	}

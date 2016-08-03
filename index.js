@@ -22,6 +22,18 @@ app.ws('/ws', function(ws, req) {
 				case 'actTakePicture':
 					sendAction("actTakePicture", [], cb)
 					break
+				case 'getShootMode':
+					sendAction("getShootMode", [], cb)
+					break
+				case 'setShootMode':
+					sendAction("setShootMode", msg.params, cb)
+					break
+				case 'startMovieRec':
+					sendAction("startMovieRec", msg.params, cb)
+					break
+				case 'stopMovieRec':
+					sendAction("stopMovieRec", msg.params, cb)
+					break
 				case 'startLiveview':
 					sendAction("startLiveview", [], function (data) {
 						var data = JSON.parse(data)
