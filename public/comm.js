@@ -30,6 +30,9 @@ ws.onmessage = function (event) {
 
 	if (data.res.error) {
 		console.error(data.res.error)
+		if (data.res.error[0] == 40400) {
+			alert('Shooting fail. Your SD Card may be full.')
+		}
 	}
 
 	if (data.res.result) {
