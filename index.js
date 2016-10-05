@@ -8,6 +8,7 @@ var querystring = require('querystring')
 var http = require('http')
 var fs = require('fs')
 var spawn = require('child_process').spawn
+var exec = require("child_process").exec
 
 app.use(express.static('public'))
 
@@ -257,6 +258,9 @@ function timelapse(n, interval, fps, cb) {
 	var maxN = n
 	interval *= 1000
 
+	// rm *.jpg public/timelapse
+	exec('rm public/timelapse/*.jpg');
+
 	function _timelapse(n) {
 		// Take picture
 		sendAction("actTakePicture", [], function (data) {
@@ -283,7 +287,7 @@ function timelapse(n, interval, fps, cb) {
 							}
 
 							// rm *.jpg public/timelapse
-							var ffmpeg = spawn('rm', ['*.jpg', 'public/timelapse']);
+							exec('rm public/timelapse/*.jpg');
 						})
 					}
 				})
